@@ -1,0 +1,80 @@
+#renv::init() # инициализация виртуального окружения
+#renv::install("class", "caret", "lattice", "e1071", "mailR") # установка библиотеки из CRAN
+#renv::snapshot() # делаем снимок версий библиотек в нашем виртуальном окружении
+# фиксируем этот список в .lock-файле для возможности восстановления
+# renv::restore() # команда отктиться к предыдушему удачному обновления библиотек
+install.packages("caret")
+install.packages("class")
+install.packages("lattice")
+install.packages("e1071")
+install.packages("stringi", type = "win.binary")
+install.packages("rJava", type = "win.binary")
+install.packages("devtools", dep = T)
+library(devtools)
+install_github("mailR", "rpremraj")
+library(mailR)
+library(class)
+library(caret)
+library(lattice)
+library(e1071)
+
+setwd("C:/Users/admin/Desktop/предметы/информационные технологии/lab10")
+
+csv <- read.csv("iris.csv")
+
+str(csv)
+head(csv)
+tail(csv)
+summary(csv)
+
+
+na_check <- function(x){
+  
+  if (missing(x))
+    print("Необходимо ввести название таблицы для проверки..")
+  
+  else
+    if (sum(is.na(x)) > 0) 
+      print(paste(c("Обнаружено"), round(sum(is.na(x)), digits = 2), c("пропущенных значений")
+      )
+      )
+  else
+    print("Пропущенных данных не обнаружено")
+}
+
+na_check(csv)
+
+set.seed(99) 
+num<- sample(rep(1:150)) 
+num
+
+csv<- csv[num,]
+head(csv)
+
+normalize <- function(x){
+  return ((x-min(x))/(max(x)-min(x)))
+}
+
+newcsv<- as.data.frame(lapply(csv[,c(1,2,3,4)],normalize))
+head(newcsv)
+
+csv.train<- newcsv[1:130,]
+csv.train.target<- csv[1:130,5]
+csv.test<- newcsv[131:150,]
+csv.test.target<- csv[131:150,5]
+summary(newcsv)
+
+knn1<- knn(train=csv.train, test=csv.test, cl=csv.train.target, k=16)
+
+table(csv.test.target, knn1)
+
+library(mailR) # only sending function
+send.mail(from = "mikhailbalandin10a@gmail.com",
+          to = c("mikhailbalandin10a@gmail.com"),
+          replyTo = c("Reply to someone else <name@yandex.ru>"),
+          subject = "Iris dataset",
+          body = "all is working!",
+          smtp = list(host.name = "smtp.yandex.ru", port = 465, user.name = "name@yandex.ru", passwd = rstudioapi::askForPassword(), ssl = TRUE),
+          authenticate = TRUE,
+          send = TRUE, 
+          attach.files = c("./table.txt")) # file must be in working dir

@@ -1,0 +1,5 @@
+               knn1
+csv.test.target Setosa Versicolor Virginica
+     Setosa          6          0         0
+     Versicolor      0          4         0
+     Virginica       0          2         8
